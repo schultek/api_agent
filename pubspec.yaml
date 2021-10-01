@@ -1,0 +1,22 @@
+name: dart_api_gen
+description: Generate api bindings for both client and server
+version: 0.0.1
+repository: https://github.com/schultek/dart_api_gen
+issue_tracker: https://github.com/schultek/dart_api_gen/issues
+
+dependencies:
+  analyzer: ^2.0.0
+  build: ^2.0.0
+  collection: ^1.15.0
+  http: ^0.13.3
+  path: ^1.8.0
+  shelf: ^1.1.0
+  source_gen: ^1.0.5
+
+dev_dependencies:
+  build_runner: ^2.0.5
+  lints: ^1.0.1
+  test: ^1.17.4
+
+environment:
+  sdk: '>=2.12.0 <3.0.0'
