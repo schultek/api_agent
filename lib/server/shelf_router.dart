@@ -5,36 +5,75 @@ import 'package:shelf/shelf.dart';
 import 'package:stack_trace/stack_trace.dart';
 
 import '../server.dart';
-import '../src/exception/api_exception.dart';
+import '../src/api_exception.dart';
 
-class ShelfApiRouter {
-  List<ApiRouter> routers;
+class HttpApiResponse extends ApiResponse {
+  int statusCode;
+  Map<String, String> headers;
 
-  ShelfApiRouter(this.routers);
+  HttpApiResponse(this.statusCode, dynamic body, {this.headers = const {}})
+      : super(body);
 
-  FutureOr<Response> call(Request request) async {
-    var body = jsonDecode(await request.readAsString());
-    var response = await _handleSingleRequest(body);
-    return Response.ok(jsonEncode(response));
+  HttpApiResponse.ok(dynamic body, {this.headers = const {}})
+      : statusCode = 200,
+        super(body);
+}
+
+mixin ShelfApiRouter on ApiRouter {
+  List<ApiMiddleware<HttpApiResponse>> get middleware;
+
+  @override
+  FutureOr<HttpApiResponse> handle(ApiRequest request) async {
+    var iterator = middleware.iterator;
+    FutureOr<HttpApiResponse> next(ApiRequest request) async {
+      if (iterator.moveNext()) {
+        return iterator.current.apply(request, next);
+      } else {
+        return HttpApiResponse.ok({'result': await super.handle(request)});
+      }
+    }
+
+    return next(request);
   }
+}
 
-  Future<Map> _handleSingleRequest(data) async {
+class ShelfApiRouters {
+  List<ShelfApiRouter> routers;
+
+  ShelfApiRouters(this.routers);
+
+  Future<Response> call(Request shelfRequest) async {
+    var body = jsonDecode(await shelfRequest.readAsString());
+
     try {
-      _validateRequest(data);
+      _validateRequest(body);
 
-      var name = (data as Map)['method'] as String;
       var request = ApiRequest(
-        name,
-        data['params'] as Map<String, dynamic>,
-        data: data['data'] as Map<String, dynamic>? ?? {},
+        body['method'] as String,
+        body['params'] as Map<String, dynamic>,
+        data: body['data'] as Map<String, dynamic>? ?? {},
       );
 
-      Object? result;
       for (var handler in routers) {
         request.codec = handler.codec;
         try {
-          result = await handler.handle(request);
-          break;
+          var response = await handler.handle(request);
+          if (response.value is Map<String, dynamic>) {
+            return Response(
+              response.statusCode,
+              body: jsonEncode(handler.codec.encode(response.value)),
+              headers: {
+                'Content-Type': 'application/json',
+                ...response.headers,
+              },
+            );
+          } else {
+            return Response(
+              response.statusCode,
+              body: response.value,
+              headers: response.headers,
+            );
+          }
         } on ApiException catch (error) {
           if (error.code != ErrorCodes.METHOD_NOT_FOUND) {
             rethrow;
@@ -42,31 +81,33 @@ class ShelfApiRouter {
         }
       }
 
-      if (result is Exception) {
-        throw result;
-      }
-
-      return {'result': result};
+      throw ApiException.methodNotFound(request.method);
     } on ApiException catch (error) {
-      return {'error': error.toMap(data)};
+      return Response(
+        error.code,
+        body: jsonEncode({'error': error.toMap(body)}),
+        headers: {'Content-Type': 'application/json'},
+      );
     } catch (error, stackTrace) {
       final chain = Chain.forTrace(stackTrace);
-      return {
-        'error': ApiException(
-          ErrorCodes.SERVER_ERROR,
-          error.toString(),
-          data: {'full': '$error', 'stack': '$chain'},
-        ).toMap(data),
-      };
+      return Response.internalServerError(
+        body: jsonEncode({
+          'error': ApiException(
+            ErrorCodes.SERVER_ERROR,
+            error.toString(),
+            data: {'full': '$error', 'stack': '$chain'},
+          ).toMap(body),
+        }),
+      );
     }
   }
 
-  /// Validates that [request] matches the JSON-RPC spec.
+  /// Validates the [request]
   void _validateRequest(request) {
     if (request is! Map) {
       throw ApiException(
         ErrorCodes.INVALID_REQUEST,
-        'Request must be an Array or an Object.',
+        'Request must be an Object.',
       );
     }
 

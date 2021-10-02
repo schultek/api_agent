@@ -11,7 +11,7 @@ Future<void> main() async {
   var router = Router();
   router.all('/ping', (_) => Response.ok('pong'));
 
-  router.post('/api', ShelfApiRouter([SomeApiRouter()]));
+  router.post('/api', ShelfApiRouters([SomeApiRouter()]));
 
   router.all('/<path|.*>', (_, path) => Response.notFound('Not Found'));
 

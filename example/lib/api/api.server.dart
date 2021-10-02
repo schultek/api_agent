@@ -23,29 +23,11 @@ abstract class SomeApiRouterBase extends ApiRouter {
   dynamic handle(ApiRequest r) {
     switch (r.method) {
       case 'SomeApi.getData':
-        return wrap(
-            (r) => getData(
-                  r.get('id'),
-                  r,
-                ),
-            r);
+        return getData(r.get('id'), r);
       case 'SomeApi.testApi':
-        return wrap(
-            (r) => testApi(
-                  r.get('data'),
-                  r,
-                  r.getOpt('a'),
-                  r.getOpt('b') ?? 2,
-                ),
-            r);
+        return testApi(r.get('data'), r, r.getOpt('a'), r.getOpt('b') ?? 2);
       case 'SomeApi.isOk':
-        return wrap(
-            (r) => isOk(
-                  r,
-                  d: r.getOpt('d'),
-                  b: r.get('b'),
-                ),
-            r);
+        return isOk(r, d: r.getOpt('d'), b: r.get('b'));
       default:
         throw ApiException.methodNotFound(r.method);
     }

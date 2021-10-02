@@ -4,9 +4,9 @@ import 'dart:convert';
 import 'package:http/http.dart';
 
 import '../client.dart';
-import '../core.dart';
 import '../dart_api_gen.dart';
-import '../src/exception/api_exception.dart';
+import '../src/api_codec.dart';
+import '../src/api_exception.dart';
 
 class HttpApiRequest extends ApiRequest {
   String url;

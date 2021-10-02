@@ -1,9 +1,7 @@
 import 'dart:async';
 
-import 'core.dart';
 import 'dart_api_gen.dart';
 
-export 'core.dart';
 export 'dart_api_gen.dart';
 
 abstract class ApiClient {
