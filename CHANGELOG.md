@@ -1,3 +1,7 @@
+# 0.0.5
+
+- Rework middleware structure
+
 # 0.0.4
 
 - Fixed imports

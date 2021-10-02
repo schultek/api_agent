@@ -1,7 +1,7 @@
 import 'dart:async';
 
+import 'package:dart_api_gen/http/shelf_router.dart';
 import 'package:dart_api_gen/server.dart';
-import 'package:dart_api_gen/server/shelf_router.dart';
 
 import '../api/api.server.dart';
 import '../api/data.dart';
@@ -9,7 +9,7 @@ import 'middleware/auth_middleware.dart';
 
 class SomeApiRouter extends SomeApiRouterBase with ShelfApiRouter {
   @override
-  List<ApiMiddleware<HttpApiResponse>> get middleware => [AuthMiddleware()];
+  List<HttpMiddleware> get middleware => [AuthMiddleware()];
 
   @override
   Future<Data> getData(String id, ApiRequest request) async {

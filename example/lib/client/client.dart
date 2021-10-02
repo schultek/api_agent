@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:dart_api_gen/client.dart';
-import 'package:dart_api_gen/client/http_client.dart';
+import 'package:dart_api_gen/http/http_client.dart';
 
 import '../api/api.client.dart';
 import 'providers/auth_provider.dart';

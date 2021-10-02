@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:dart_api_gen/server/shelf_router.dart';
+import 'package:dart_api_gen/http/shelf_router.dart';
 import 'package:shelf/shelf.dart' hide Server;
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';

@@ -1,16 +1,18 @@
 import 'dart:async';
 
+import 'package:dart_api_gen/http/http_middleware.dart';
 import 'package:dart_api_gen/server.dart';
 
 extension UserContext on ApiRequest {
   String get user => data['user'] as String;
 }
 
-class AuthMiddleware<T extends ApiResponse> extends ApiMiddleware<T> {
+class AuthMiddleware extends HttpMiddleware {
   const AuthMiddleware();
 
   @override
-  FutureOr<T> apply(ApiRequest request, FutureOr<T> Function(ApiRequest) next) {
+  FutureOr<HttpApiResponse> apply(HttpApiRequest request,
+      FutureOr<HttpApiResponse> Function(HttpApiRequest) next) {
     String token = request.getData('token');
     if (token == 'abc') {
       return next(request..set('user', 'abc'));

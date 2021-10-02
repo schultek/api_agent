@@ -5,19 +5,12 @@ import 'package:http/http.dart';
 
 import '../client.dart';
 import '../dart_api_gen.dart';
-import '../src/api_codec.dart';
 import '../src/api_exception.dart';
+import 'http_request.dart';
 
-class HttpApiRequest extends ApiRequest {
-  String url;
-  Map<String, String> headers;
+export 'http_request.dart';
 
-  HttpApiRequest(this.url, String method, Map<String, dynamic> parameters,
-      {Map<String, dynamic> data = const {},
-      this.headers = const {},
-      ApiCodec? codec})
-      : super(method, parameters, data: data, codec: codec);
-
+extension on HttpApiRequest {
   Request build() {
     return Request('post', Uri.parse(url))
       ..body = jsonEncode({

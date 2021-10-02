@@ -4,9 +4,11 @@ import 'dart_api_gen.dart';
 
 export 'dart_api_gen.dart';
 
-abstract class ApiMiddleware<T extends ApiResponse> {
+abstract class ApiMiddleware<Request extends ApiRequest,
+    Response extends ApiResponse> {
   const ApiMiddleware();
-  FutureOr<T> apply(ApiRequest request, FutureOr<T> Function(ApiRequest) next);
+  FutureOr<Response> apply(
+      Request request, FutureOr<Response> Function(Request) next);
 }
 
 class ApiResponse {

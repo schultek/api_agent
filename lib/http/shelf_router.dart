@@ -6,26 +6,19 @@ import 'package:stack_trace/stack_trace.dart';
 
 import '../server.dart';
 import '../src/api_exception.dart';
+import 'http_middleware.dart';
+import 'http_request.dart';
+import 'http_response.dart';
 
-class HttpApiResponse extends ApiResponse {
-  int statusCode;
-  Map<String, String> headers;
-
-  HttpApiResponse(this.statusCode, dynamic body, {this.headers = const {}})
-      : super(body);
-
-  HttpApiResponse.ok(dynamic body, {this.headers = const {}})
-      : statusCode = 200,
-        super(body);
-}
+export 'http_middleware.dart';
 
 mixin ShelfApiRouter on ApiRouter {
-  List<ApiMiddleware<HttpApiResponse>> get middleware;
+  List<HttpMiddleware> get middleware;
 
   @override
-  FutureOr<HttpApiResponse> handle(ApiRequest request) async {
+  FutureOr<HttpApiResponse> handle(covariant HttpApiRequest request) async {
     var iterator = middleware.iterator;
-    FutureOr<HttpApiResponse> next(ApiRequest request) async {
+    FutureOr<HttpApiResponse> next(HttpApiRequest request) async {
       if (iterator.moveNext()) {
         return iterator.current.apply(request, next);
       } else {
@@ -48,10 +41,12 @@ class ShelfApiRouters {
     try {
       _validateRequest(body);
 
-      var request = ApiRequest(
+      var request = HttpApiRequest(
+        shelfRequest.url.toString(),
         body['method'] as String,
         body['params'] as Map<String, dynamic>,
         data: body['data'] as Map<String, dynamic>? ?? {},
+        headers: shelfRequest.headers,
       );
 
       for (var handler in routers) {
