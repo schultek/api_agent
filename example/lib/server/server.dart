@@ -12,6 +12,12 @@ class SomeApiRouter extends SomeApiRouterBase with ShelfApiRouter {
   List<HttpMiddleware> get middleware => [AuthMiddleware()];
 
   @override
+  bool shouldApply(HttpMiddleware middleware, HttpApiRequest request) {
+    if (request.method.endsWith('getData')) return false;
+    return true;
+  }
+
+  @override
   Future<Data> getData(String id, ApiRequest request) async {
     return Data('data_1:id=$id>>');
   }

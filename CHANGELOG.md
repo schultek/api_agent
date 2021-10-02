@@ -1,3 +1,7 @@
+# 0.0.6
+
+- Added shouldApply for middleware
+
 # 0.0.5
 
 - Rework middleware structure

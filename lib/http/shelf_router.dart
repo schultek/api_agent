@@ -15,11 +15,13 @@ export 'http_middleware.dart';
 mixin ShelfApiRouter on ApiRouter {
   List<HttpMiddleware> get middleware;
 
+  bool shouldApply(HttpMiddleware middleware, HttpApiRequest request) => true;
+
   @override
   FutureOr<HttpApiResponse> handle(covariant HttpApiRequest request) async {
     var iterator = middleware.iterator;
     FutureOr<HttpApiResponse> next(HttpApiRequest request) async {
-      if (iterator.moveNext()) {
+      if (iterator.moveNext() && shouldApply(iterator.current, request)) {
         return iterator.current.apply(request, next);
       } else {
         return HttpApiResponse.ok({'result': await super.handle(request)});
