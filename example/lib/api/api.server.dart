@@ -9,6 +9,7 @@ import 'mapper_transformer.dart';
 
 
 abstract class SomeApiRouterBase extends ApiRouter {
+  @override
   ApiCodec get codec => MapperCodec();
 
   /// [SomeApi.getData]

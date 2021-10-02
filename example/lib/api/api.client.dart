@@ -8,7 +8,8 @@ import 'data.dart';
 import 'mapper_transformer.dart';
 
 
-abstract class SomeApiClientBase extends SomeApi with ApiClient {
+abstract class SomeApiClientBase extends ApiClient {
+  @override
   ApiCodec get codec => MapperCodec();
 
   /// [SomeApi.getData]

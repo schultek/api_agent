@@ -73,11 +73,11 @@ class ApiBuilder implements Builder {
     var output = StringBuffer();
 
     output.writeln(
-        'abstract class ${element.name}ClientBase extends ${element.name} with ApiClient {');
+        'abstract class ${element.name}ClientBase extends ApiClient {');
 
     if (!annotation.getField('codec')!.isNull) {
       var codec = getAnnotationCode(element, ApiDefinition, 'codec');
-      output.writeln('  ApiCodec get codec => $codec;');
+      output.writeln('  @override\n  ApiCodec get codec => $codec;');
       var uri =
           annotation.getField('codec')!.type?.element?.library?.source.uri;
       if (uri != null) imports.add(uri);
@@ -142,7 +142,7 @@ class ApiBuilder implements Builder {
 
     if (!annotation.getField('codec')!.isNull) {
       var codec = getAnnotationCode(element, ApiDefinition, 'codec', imports);
-      output.writeln('  ApiCodec get codec => $codec;');
+      output.writeln('  @override\n  ApiCodec get codec => $codec;');
       var uri =
           annotation.getField('codec')!.type?.element?.library?.source.uri;
       if (uri != null) imports.add(uri);
@@ -312,6 +312,7 @@ extension MethodImports on MethodElement {
 
 extension TypeImports on DartType {
   List<Uri> getImports() {
+    if (this is InterfaceType) return (this as InterfaceType).getImports();
     var uri = element?.library?.source.uri;
     return uri != null ? [uri] : [];
   }
