@@ -211,41 +211,45 @@ class ApiBuilder implements Builder {
 
     for (var method in element.methods) {
       if (method.isAbstract) {
-        output.write("      case '${element.name}.${method.name}': ");
-        output.write('return wrap((r) => ${method.name}(\n        ');
+        output.write("      case '${element.name}.${method.name}':\n        ");
+        output.write('return ${method.name}(');
+
+        var params = <String>[];
 
         var hasContext = false;
         for (var param in method.parameters) {
+          var paramOut = StringBuffer();
+
           if (!param.isRequiredPositional && !hasContext) {
-            output.write('r, ');
+            params.add('r');
             hasContext = true;
           }
 
           if (param.isNamed) {
-            output.write('${param.name}: ');
+            paramOut.write('${param.name}: ');
           }
-          output.write('r.get');
+          paramOut.write('r.get');
           if (param.hasDefaultValue ||
               param.type.nullabilitySuffix == NullabilitySuffix.question) {
-            output.write('Opt');
+            paramOut.write('Opt');
           }
-          output.write("('${param.name}')");
+          paramOut.write("('${param.name}')");
           if (param.hasDefaultValue) {
-            output.write(' ?? ${param.defaultValueCode}');
+            paramOut.write(' ?? ${param.defaultValueCode}');
           }
-          output.write(', ');
+          params.add(paramOut.toString());
         }
         if (!hasContext) {
-          output.write('r, ');
+          params.add('r');
         }
-        output.writeln('\n      ), r);');
+        output.writeln('${params.join(', ')});');
       }
     }
 
-    output
-        .writeln('      default: throw ApiException.methodNotFound(r.method);\n'
-            '    }\n'
-            '  }');
+    output.writeln('      default:\n'
+        '        throw ApiException.methodNotFound(r.method);\n'
+        '    }\n'
+        '  }');
 
     output.writeln('}');
 

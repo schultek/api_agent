@@ -7,6 +7,7 @@ import 'api.dart';
 import 'data.dart';
 import 'mapper_transformer.dart';
 
+
 abstract class SomeApiRouterBase extends ApiRouter {
   ApiCodec get codec => MapperCodec();
 
