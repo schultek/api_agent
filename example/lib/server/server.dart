@@ -1,37 +1,55 @@
 import 'dart:async';
 
-import 'package:dart_api_gen/http/shelf_router.dart';
-import 'package:dart_api_gen/server.dart';
+import 'package:api_agent/http/shelf_router.dart';
+import 'package:api_agent/server.dart';
+import 'package:shelf/shelf.dart';
 
+import '../api/api.dart';
 import '../api/api.server.dart';
-import '../api/data.dart';
 import 'middleware/auth_middleware.dart';
 
-class SomeApiRouter extends SomeApiRouterBase with ShelfApiRouter {
-  @override
-  List<HttpMiddleware> get middleware => [AuthMiddleware()];
+FutureOr<Response> Function(Request) buildApi() {
+  return ShelfApiRouter([
+    SomeApiHandler(
+      getData: ApplyMiddleware(
+        child: GetData(),
+        middleware: AuthMiddleware(),
+      ),
+      testApi: TestApi(),
+      isOk: IsOk(),
+      inner: InnerApiHandler(
+        doSomething: DoSomething(),
+      ),
+    )
+  ]);
+}
 
+class GetData extends GetDataHandler {
   @override
-  bool shouldApply(HttpMiddleware middleware, HttpApiRequest request) {
-    if (request.method.endsWith('getData')) return false;
-    return true;
-  }
-
-  @override
-  Future<Data> getData(String id, ApiRequest request) async {
+  Future<Data> getData(String id, ApiRequest r) async {
     return Data('data_1:id=$id>>');
   }
+}
 
+class TestApi extends TestApiHandler {
   @override
-  Future<bool> isOk(ApiRequest request, {Data? d, required String b}) async {
+  Future<int> testApi(String data, int? a, double b, ApiRequest r) async {
+    print('GET testApi (data: $data, a: $a, b: $b');
+    return 0;
+  }
+}
+
+class IsOk extends IsOkHandler {
+  @override
+  Future<bool> isOk(Data? d, String b, ApiRequest r) async {
     print('GET isOk (d: $d, b: $b');
     return true;
   }
+}
 
+class DoSomething extends DoSomethingHandler {
   @override
-  Future<int> testApi(String data, ApiRequest request,
-      [int? a, double b = 2]) async {
-    print('GET testApi (data: $data, a: $a, b: $b');
-    return 0;
+  Future<String> doSomething(int i, ApiRequest r) async {
+    return '$i';
   }
 }

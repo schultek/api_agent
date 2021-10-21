@@ -1,10 +1,10 @@
-name: dart_api_gen_example
+name: api_agent_example
 
 environment:
   sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
-  dart_api_gen:
+  api_agent:
     path: ../
   shelf_router: ^1.1.1
 

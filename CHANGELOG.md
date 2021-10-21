@@ -1,3 +1,7 @@
+# 0.1.0
+
+- Rewrote handler structure
+
 # 0.0.6
 
 - Added shouldApply for middleware

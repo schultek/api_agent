@@ -2,63 +2,59 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:shelf/shelf.dart';
+import 'package:shelf_router/shelf_router.dart';
 import 'package:stack_trace/stack_trace.dart';
 
 import '../server.dart';
 import '../src/api_exception.dart';
-import 'http_middleware.dart';
+import '../src/case_style.dart';
 import 'http_request.dart';
 import 'http_response.dart';
 
-export 'http_middleware.dart';
+class ShelfApiRouter implements ApiVisitor {
+  final Router _router;
 
-mixin ShelfApiRouter on ApiRouter {
-  List<HttpMiddleware> get middleware;
+  ShelfApiRouter(List<ApiHandler> children) : _router = Router() {
+    for (var h in children) {
+      h.visit(this);
+    }
+  }
 
-  bool shouldApply(HttpMiddleware middleware, HttpApiRequest request) => true;
+  String segment(String s) {
+    var out = CaseStyle.snakeCase.transform(s);
+    return out.endsWith('_api') ? out.substring(0, out.length - 4) : out;
+  }
 
   @override
-  FutureOr<HttpApiResponse> handle(covariant HttpApiRequest request) async {
-    var iterator = middleware.iterator;
-    FutureOr<HttpApiResponse> next(HttpApiRequest request) async {
-      if (iterator.moveNext() && shouldApply(iterator.current, request)) {
-        return iterator.current.apply(request, next);
-      } else {
-        return HttpApiResponse.ok({'result': await super.handle(request)});
-      }
-    }
-
-    return next(request);
+  void mount(String prefix, List<ApiHandler> children) {
+    _router.mount('/${segment(prefix)}/', ShelfApiRouter(children));
   }
-}
 
-class ShelfApiRouters {
-  List<ShelfApiRouter> routers;
+  @override
+  void handle(String prefix, EndpointHandler handler) {
+    _router.post('/${segment(prefix)}', wrap(handler));
+  }
 
-  ShelfApiRouters(this.routers);
+  Function wrap(EndpointHandler handler) {
+    return (Request r) async {
+      var body = jsonDecode(await r.readAsString());
+      try {
+        _validate(body);
 
-  Future<Response> call(Request shelfRequest) async {
-    var body = jsonDecode(await shelfRequest.readAsString());
+        var request = HttpApiRequest.init(
+          r.url.toString(),
+          body['params'] as Map<String, dynamic>,
+          context: body['context'] as Map<String, dynamic>? ?? {},
+          headers: r.headers,
+        );
 
-    try {
-      _validateRequest(body);
+        var response = await handler(request);
 
-      var request = HttpApiRequest(
-        shelfRequest.url.toString(),
-        body['method'] as String,
-        body['params'] as Map<String, dynamic>,
-        data: body['data'] as Map<String, dynamic>? ?? {},
-        headers: shelfRequest.headers,
-      );
-
-      for (var handler in routers) {
-        request.codec = handler.codec;
-        try {
-          var response = await handler.handle(request);
+        if (response is ApiResponse) {
           if (response.value is Map<String, dynamic>) {
             return Response(
               response.statusCode,
-              body: jsonEncode(handler.codec.encode(response.value)),
+              body: jsonEncode(response.value),
               headers: {
                 'Content-Type': 'application/json',
                 ...response.headers,
@@ -71,65 +67,43 @@ class ShelfApiRouters {
               headers: response.headers,
             );
           }
-        } on ApiException catch (error) {
-          if (error.code != ErrorCodes.METHOD_NOT_FOUND) {
-            rethrow;
-          }
+        } else {
+          return Response.ok(jsonEncode({'result': response}));
         }
+      } on ApiException catch (error) {
+        return Response(
+          error.code,
+          body: jsonEncode({'error': error.toMap(body)}),
+          headers: {'Content-Type': 'application/json'},
+        );
+      } catch (error, stackTrace) {
+        final chain = Chain.forTrace(stackTrace);
+        return Response.internalServerError(
+          body: jsonEncode({
+            'error': ApiException(
+              500,
+              error.toString(),
+              data: {'full': '$error', 'stack': '$chain'},
+            ).toMap(body),
+          }),
+        );
       }
-
-      throw ApiException.methodNotFound(request.method);
-    } on ApiException catch (error) {
-      return Response(
-        error.code,
-        body: jsonEncode({'error': error.toMap(body)}),
-        headers: {'Content-Type': 'application/json'},
-      );
-    } catch (error, stackTrace) {
-      final chain = Chain.forTrace(stackTrace);
-      return Response.internalServerError(
-        body: jsonEncode({
-          'error': ApiException(
-            ErrorCodes.SERVER_ERROR,
-            error.toString(),
-            data: {'full': '$error', 'stack': '$chain'},
-          ).toMap(body),
-        }),
-      );
-    }
+    };
   }
 
+  FutureOr<Response> call(Request request) => _router.call(request);
+
   /// Validates the [request]
-  void _validateRequest(request) {
+  static void _validate(request) {
     if (request is! Map) {
-      throw ApiException(
-        ErrorCodes.INVALID_REQUEST,
-        'Request must be an Object.',
-      );
-    }
-
-    if (!request.containsKey('method')) {
-      throw ApiException(
-        ErrorCodes.INVALID_REQUEST,
-        'Request must contain a "method" key.',
-      );
-    }
-
-    var method = request['method'];
-    if (request['method'] is! String) {
-      throw ApiException(
-        ErrorCodes.INVALID_REQUEST,
-        'Request method must be a string, but was ${jsonEncode(method)}.',
-      );
+      throw ApiException(400, 'Request must be an Object.');
     }
 
     if (request.containsKey('params')) {
       var params = request['params'];
       if (params is! Map) {
-        throw ApiException(
-          ErrorCodes.INVALID_REQUEST,
-          'Request params must be an Object, but was ${jsonEncode(params)}.',
-        );
+        throw ApiException(400,
+            'Request params must be an Object, but was ${jsonEncode(params)}.');
       }
     }
   }

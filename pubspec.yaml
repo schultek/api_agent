@@ -1,8 +1,8 @@
-name: dart_api_gen
-description: Generate api bindings for both client and server
-version: 0.0.6
-repository: https://github.com/schultek/dart_api_gen
-issue_tracker: https://github.com/schultek/dart_api_gen/issues
+name: api_agent
+description: Generate technology-agnostic api bindings for both client and server.
+version: 0.1.0
+repository: https://github.com/schultek/api_agent
+issue_tracker: https://github.com/schultek/api_agent/issues
 
 dependencies:
   analyzer: ^2.0.0
@@ -11,6 +11,7 @@ dependencies:
   http: ^0.13.3
   path: ^1.8.0
   shelf: ^1.1.0
+  shelf_router: ^1.1.1
   source_gen: ^1.0.5
 
 dev_dependencies:

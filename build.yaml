@@ -1,6 +1,6 @@
 builders:
-  dart_api_gen:
-    import: "package:dart_api_gen/builder.dart"
+  api_agent:
+    import: "package:api_agent/builder.dart"
     builder_factories: [ "buildApi" ]
     build_extensions: { ".dart": [ ".client.dart", ".server.dart" ] }
     build_to: source

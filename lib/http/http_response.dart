@@ -1,13 +1,17 @@
 import '../server.dart';
 
-class HttpApiResponse extends ApiResponse {
-  int statusCode;
-  Map<String, String> headers;
+extension HttpApiResponse on ApiResponse {
+  int get statusCode => context['statusCode'] as int;
+  Map<String, String> get headers => context['headers'] as Map<String, String>;
 
-  HttpApiResponse(this.statusCode, dynamic body, {this.headers = const {}})
-      : super(body);
+  static ApiResponse init(int statusCode, dynamic body,
+      {Map<String, String>? headers}) {
+    return ApiResponse(body, context: {
+      'statusCode': statusCode,
+      'headers': headers ?? <String, String>{},
+    });
+  }
 
-  HttpApiResponse.ok(dynamic body, {this.headers = const {}})
-      : statusCode = 200,
-        super(body);
+  static ApiResponse ok(dynamic body, {Map<String, String>? headers}) =>
+      init(200, body, headers: headers);
 }

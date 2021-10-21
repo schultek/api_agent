@@ -1,37 +1,64 @@
 import 'dart:async';
 import 'dart:core';
 
-import 'package:dart_api_gen/server.dart';
+import 'package:api_agent/server.dart';
 
 import 'api.dart';
-import 'data.dart';
-import 'mapper_transformer.dart';
 
+class SomeApiHandler implements ApiHandler<SomeApiHandler> {
+  SomeApiHandler({
+    required ApiHandler<GetDataHandler> getData,
+    required ApiHandler<TestApiHandler> testApi,
+    required ApiHandler<IsOkHandler> isOk,
+    required ApiHandler<InnerApiHandler> inner,
+  }) : endpoints = [getData, testApi, isOk, inner];
 
-abstract class SomeApiRouterBase extends ApiRouter {
+  final List<ApiHandler> endpoints;
+
   @override
-  ApiCodec get codec => MapperCodec();
+  void visit(ApiVisitor visitor) =>
+      visitor.mount('SomeApi', endpoints.withCodec(MapperCodec()));
+}
 
-  /// [SomeApi.getData]
+abstract class GetDataHandler implements ApiHandler<GetDataHandler> {
   Future<Data> getData(String id, ApiRequest request);
 
-  /// [SomeApi.testApi]
-  Future<int> testApi(String data, ApiRequest request, [int? a, double b = 2]);
+  @override
+  void visit(ApiVisitor visitor) =>
+      visitor.handle('getData', (r) => getData(r.get('id'), r));
+}
 
-  /// [SomeApi.isOk]
-  Future<bool> isOk(ApiRequest request, {Data? d, required String b});
+abstract class TestApiHandler implements ApiHandler<TestApiHandler> {
+  Future<int> testApi(String data, int? a, double b, ApiRequest request);
 
   @override
-  dynamic handle(ApiRequest r) {
-    switch (r.method) {
-      case 'SomeApi.getData':
-        return getData(r.get('id'), r);
-      case 'SomeApi.testApi':
-        return testApi(r.get('data'), r, r.getOpt('a'), r.getOpt('b') ?? 2);
-      case 'SomeApi.isOk':
-        return isOk(r, d: r.getOpt('d'), b: r.get('b'));
-      default:
-        throw ApiException.methodNotFound(r.method);
-    }
-  }
+  void visit(ApiVisitor visitor) => visitor.handle('testApi',
+      (r) => testApi(r.get('data'), r.getOpt('a'), r.getOpt('b') ?? 2, r));
+}
+
+abstract class IsOkHandler implements ApiHandler<IsOkHandler> {
+  Future<bool> isOk(Data? d, String b, ApiRequest request);
+
+  @override
+  void visit(ApiVisitor visitor) =>
+      visitor.handle('isOk', (r) => isOk(r.getOpt('d'), r.get('b'), r));
+}
+
+class InnerApiHandler implements ApiHandler<InnerApiHandler> {
+  InnerApiHandler({
+    required ApiHandler<DoSomethingHandler> doSomething,
+  }) : endpoints = [doSomething];
+
+  final List<ApiHandler> endpoints;
+
+  @override
+  void visit(ApiVisitor visitor) => visitor.mount('InnerApi', endpoints);
+}
+
+abstract class DoSomethingHandler implements ApiHandler<DoSomethingHandler> {
+  Future<String> doSomething(int i, ApiRequest request);
+
+  @override
+  void visit(ApiVisitor visitor) =>
+      visitor.handle('doSomething', (r) => doSomething(r.get('i'), r));
 }

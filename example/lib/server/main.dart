@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:dart_api_gen/http/shelf_router.dart';
 import 'package:shelf/shelf.dart' hide Server;
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
@@ -11,7 +10,7 @@ Future<void> main() async {
   var router = Router();
   router.all('/ping', (_) => Response.ok('pong'));
 
-  router.post('/api', ShelfApiRouters([SomeApiRouter()]));
+  router.mount('/api/', buildApi());
 
   router.all('/<path|.*>', (_, path) => Response.notFound('Not Found'));
 
@@ -36,7 +35,7 @@ Future<void> main() async {
   }
 
   // Find port to listen on from environment variable.
-  var port = int.parse(Platform.environment['PORT'] ?? '8080');
+  var port = int.parse(Platform.environment['PORT'] ?? '8081');
   var app = const Pipeline().addMiddleware(logRequests()).addHandler(handler);
 
   // Serve handler on given port.

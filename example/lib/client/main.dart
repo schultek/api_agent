@@ -1,8 +1,15 @@
-import '../api/data.dart';
-import 'client.dart';
+import 'package:api_agent/http/http_client.dart';
+
+import '../api/api.client.dart';
+import '../api/api.dart';
+import 'providers/auth_provider.dart';
 
 Future<void> main() async {
-  var client = SomeApiClient();
+  var client = SomeApiService(HttpApiClient(
+    domain: 'http://localhost:8081',
+    path: '/api',
+    providers: [AuthProvider()],
+  ));
 
   var result = await client.getData('abc');
   print(result);
@@ -12,4 +19,6 @@ Future<void> main() async {
 
   print(await client.testApi('1', null));
   print(await client.testApi('2', 2, 3));
+
+  print(await client.inner.doSomething(2));
 }

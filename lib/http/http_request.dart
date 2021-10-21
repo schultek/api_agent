@@ -1,12 +1,21 @@
-import '../dart_api_gen.dart';
+import '../api_agent.dart';
 
-class HttpApiRequest extends ApiRequest {
-  String url;
-  Map<String, String> headers;
+extension HttpApiRequest on ApiRequest {
+  String get url => context['url'] as String;
+  Map<String, String> get headers => context['headers'] as Map<String, String>;
 
-  HttpApiRequest(this.url, String method, Map<String, dynamic> parameters,
-      {Map<String, dynamic> data = const {},
-      this.headers = const {},
-      ApiCodec? codec})
-      : super(method, parameters, data: data, codec: codec);
+  static ApiRequest init(String url, Map<String, dynamic> params,
+      {Map<String, dynamic>? context,
+      Map<String, String>? headers,
+      ApiCodec? codec}) {
+    return ApiRequest(
+      params,
+      context: {
+        'url': url,
+        'headers': headers ?? <String, String>{},
+        ...context ?? {}
+      },
+      codec: codec,
+    );
+  }
 }

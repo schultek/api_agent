@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:dart_api_gen/client.dart';
-import 'package:dart_api_gen/dart_api_gen.dart';
+import 'package:api_agent/api_agent.dart';
+import 'package:api_agent/client.dart';
 
-class AuthProvider<T extends ApiRequest> extends ApiProvider<T> {
+class AuthProvider extends ApiProvider {
   @override
-  FutureOr<T> apply(T request) {
+  FutureOr<ApiRequest> apply(ApiRequest request) {
     return request..set('token', 'abc');
   }
 }
