@@ -1,3 +1,7 @@
+# 0.1.1
+
+- Fixed import bug
+
 # 0.1.0
 
 - Rewrote handler structure

@@ -1,4 +1,4 @@
-library dart_api_gen;
+library api_agent;
 
 import 'src/api_codec.dart';
 

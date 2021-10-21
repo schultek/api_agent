@@ -10,7 +10,7 @@ class ClientApiBuilder {
       List<LibraryElement> libraries, BuildStep buildStep) async {
     var imports = ImportsBuilder(buildStep.inputId)
       ..add(buildStep.inputId.uri)
-      ..add(Uri.parse('package:dart_api_gen/client.dart'));
+      ..add(Uri.parse('package:api_agent/client.dart'));
 
     Map<String, String> clients = {};
 

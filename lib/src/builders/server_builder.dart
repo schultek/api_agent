@@ -13,7 +13,7 @@ class ServerApiBuilder {
     var imports = ImportsBuilder(buildStep.inputId)
       ..add(Uri.parse('dart:async'))
       ..add(buildStep.inputId.uri)
-      ..add(Uri.parse('package:dart_api_gen/server.dart'));
+      ..add(Uri.parse('package:api_agent/server.dart'));
 
     Map<String, String> handlers = {};
 
