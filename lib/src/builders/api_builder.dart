@@ -19,12 +19,14 @@ class ApiBuilder implements Builder {
     var visibleLibraries = await resolver.libraries.toList();
 
     try {
-      var clientId = inputId.changeExtension('.client.dart');
+      var clientId = AssetId(inputId.package,
+          inputId.path.replaceFirst('.api.dart', '.client.dart'));
       var clientSource =
           await ClientApiBuilder().generateClients(visibleLibraries, buildStep);
       await buildStep.writeAsString(clientId, clientSource);
 
-      var serverId = inputId.changeExtension('.server.dart');
+      var serverId = AssetId(inputId.package,
+          inputId.path.replaceFirst('.api.dart', '.server.dart'));
       var serverSource =
           await ServerApiBuilder().generateServers(visibleLibraries, buildStep);
       await buildStep.writeAsString(serverId, serverSource);
@@ -36,6 +38,6 @@ class ApiBuilder implements Builder {
 
   @override
   Map<String, List<String>> get buildExtensions => const {
-        '.dart': ['.client.dart', '.server.dart']
+        '.api.dart': ['.client.dart', '.server.dart']
       };
 }

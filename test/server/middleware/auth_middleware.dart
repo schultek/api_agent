@@ -6,12 +6,9 @@ extension UserContext on ApiRequest {
   String get user => context['user'] as String;
 }
 
-class AuthMiddleware extends ApiMiddleware {
-  const AuthMiddleware();
-
+class AuthMiddleware implements ApiMiddleware {
   @override
-  FutureOr<dynamic> apply(
-      ShelfApiRequest request, FutureOr<dynamic> Function(ApiRequest) next) {
+  FutureOr<dynamic> apply(ShelfApiRequest request, EndpointHandler next) {
     String? token = request.headers['Authorization'];
     if (token == 'abc') {
       return next(request.change(context: {'user': 'abc'}));

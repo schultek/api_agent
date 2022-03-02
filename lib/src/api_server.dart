@@ -23,9 +23,7 @@ abstract class ApiBuilder {
 }
 
 abstract class ApiMiddleware {
-  const ApiMiddleware();
-  FutureOr<dynamic> apply(covariant ApiRequest request,
-      FutureOr<dynamic> Function(ApiRequest) next);
+  FutureOr<dynamic> apply(covariant ApiRequest request, EndpointHandler next);
 }
 
 class ApplyMiddleware<T> extends WrappedEndpoint<T> implements ApiEndpoint<T> {

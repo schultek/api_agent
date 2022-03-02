@@ -2,5 +2,6 @@ builders:
   api_agent:
     import: "package:api_agent/builder.dart"
     builder_factories: [ "buildApi" ]
-    build_extensions: { ".dart": [ ".client.dart", ".server.dart" ] }
+    build_extensions: { ".api.dart": [ ".client.dart", ".server.dart" ] }
     build_to: source
+    auto_apply: dependents
