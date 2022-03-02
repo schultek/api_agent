@@ -1,6 +1,7 @@
 name: basic_backend
 description: A server app using the shelf package and Docker.
 version: 1.0.0
+publish_to: none
 # homepage: https://www.example.com
 
 environment:

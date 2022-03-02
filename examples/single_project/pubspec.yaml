@@ -1,5 +1,6 @@
 name: api_agent_single_project_example
 
+publish_to: none
 environment:
   sdk: '>=2.12.0 <3.0.0'
 

@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:shelf/shelf.dart';
 import 'package:shelf_router/shelf_router.dart';
-import 'package:stack_trace/stack_trace.dart';
 
 import '../server.dart';
 import '../src/core/case_style.dart';
@@ -53,13 +52,12 @@ class ShelfApiRouter implements ApiBuilder {
           headers: {'Content-Type': 'application/json'},
         );
       } catch (error, stackTrace) {
-        final chain = Chain.forTrace(stackTrace);
         return Response.internalServerError(
           body: jsonEncode({
             'error': ApiException(
               500,
               error.toString(),
-              data: {'full': '$error', 'stack': '$chain'},
+              data: {'full': '$error', 'stack': '$stackTrace'},
             ).toMap(),
           }),
         );
