@@ -5,7 +5,9 @@ class ImportsBuilder {
   final Set<Uri> _imports = {};
   final AssetId _input;
 
-  ImportsBuilder(this._input);
+  final String verb;
+
+  ImportsBuilder(this._input, [this.verb = 'import']);
 
   void addAll(Iterable<Uri> imports) => _imports.addAll(imports);
   void add(Uri import) => _imports.add(import);
@@ -45,7 +47,7 @@ class ImportsBuilder {
     relative.sort();
 
     String joined(List<String> s) =>
-        s.isNotEmpty ? '${s.map((s) => "import '$s';").join('\n')}\n\n' : '';
+        s.isNotEmpty ? '${s.map((s) => "$verb '$s';").join('\n')}\n\n' : '';
     return joined(sdk) + joined(package) + joined(relative);
   }
 }

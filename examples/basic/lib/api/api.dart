@@ -28,7 +28,7 @@ class Data {
   }
 }
 
-class MapperCodec extends ApiCodec {
+class MapperCodec implements ApiCodec {
   const MapperCodec();
 
   @override

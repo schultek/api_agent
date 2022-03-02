@@ -3,71 +3,61 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 
-import '../api_agent.dart';
 import '../client.dart';
-import '../src/api_exception.dart';
-import '../src/case_style.dart';
-import 'http_request.dart';
+import '../src/protocol/http_request.dart';
 
-export 'http_request.dart';
-
-extension RequestBuild on ApiRequest {
-  Request build() {
-    return Request('post', Uri.parse(url))
-      ..body = jsonEncode({
-        'params': encode(parameters),
-        'context': encode(context),
-      })
-      ..headers.addAll(headers);
-  }
-}
+export '../client.dart';
+export '../src/protocol/http_request.dart';
 
 class HttpApiClient implements ApiClient {
   FutureOr<String> domain;
   String path;
-  List<ApiProvider> providers;
+  List<ApiProvider<HttpApiRequest>> providers;
   ApiCodec? codec;
 
   HttpApiClient({
     required this.domain,
-    required this.path,
-    required this.providers,
+    this.path = '/',
+    this.providers = const [],
     this.codec,
-  });
-
-  String segment(String s) {
-    var out = CaseStyle.snakeCase.transform(s);
-    return out.endsWith('_api') ? out.substring(0, out.length - 4) : out;
-  }
+  }) : assert(path.startsWith('/'));
 
   @override
   ApiClient mount(String prefix, [ApiCodec? codec]) {
     return HttpApiClient(
       domain: domain,
-      path: '$path/${segment(prefix)}',
+      path:
+          '${path.endsWith('/') ? path : '$path/'}${HttpApiRequest.segment(prefix)}',
       providers: providers,
       codec: codec ?? this.codec,
     );
   }
 
   @override
-  Future<T> request<T>(String method, Map<String, dynamic> params) async {
+  Future<T> request<T>(String endpoint, Map<String, dynamic> params) async {
     var domain = await this.domain;
 
-    var request = (await HttpApiRequest.init(
-      '$domain$path/${segment(method)}',
-      params,
+    var request = HttpApiRequest(
+      url: Uri.parse('$domain$path'),
+      endpoint: endpoint,
+      params: params,
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
       codec: codec,
-    ).apply(providers))
-        .build();
+    );
+
+    var newRequest = await request.apply(providers);
+
+    assert(
+        newRequest is HttpApiRequest,
+        'Providers should not change the type of an api request.'
+        'Expected HttpApiRequest, got ${newRequest.runtimeType}');
 
     StreamedResponse response;
     try {
-      response = await request.send();
+      response = await (newRequest as HttpApiRequest).build().send();
     } catch (e) {
       return Future.error(
           ApiException(-1, 'Could not make request: $e', data: request));

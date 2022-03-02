@@ -1,3 +1,8 @@
+# 0.2.0
+
+- Rewrote endpoint generation
+- Added documentation
+
 # 0.1.1
 
 - Fixed import bug

@@ -41,14 +41,17 @@ String? getMetaProperty(Element annotatedElement, String property,
       }
     }
   }
+  return null;
 }
 
 extension GetNode on Element {
   AstNode? getNode() {
-    return (session?.getParsedLibraryByElement2(library!)
-            as ParsedLibraryResult?)
-        ?.getElementDeclaration(this)
-        ?.node;
+    var result = session?.getParsedLibraryByElement(library!);
+    if (result is ParsedLibraryResult) {
+      return result.getElementDeclaration(this)?.node;
+    } else {
+      return null;
+    }
   }
 }
 
@@ -64,6 +67,7 @@ extension MethodImports on MethodElement {
 extension TypeImports on DartType {
   List<Uri> getImports() {
     if (this is InterfaceType) return (this as InterfaceType).getImports();
+    if (element?.library?.isInSdk ?? false) return [];
     var uri = element?.library?.source.uri;
     return uri != null ? [uri] : [];
   }
@@ -72,7 +76,7 @@ extension TypeImports on DartType {
 extension InterfaceTypeImports on InterfaceType {
   List<Uri> getImports() {
     return [
-      element.library.source.uri,
+      if (!element.library.isInSdk) element.library.source.uri,
       ...typeArguments.expand((t) => t.getImports()),
     ];
   }

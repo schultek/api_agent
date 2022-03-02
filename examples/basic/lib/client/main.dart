@@ -1,11 +1,10 @@
-import 'package:api_agent/http/http_client.dart';
+import 'package:api_agent/clients/http_client.dart';
 
 import '../api/api.client.dart';
-import '../api/api.dart';
 import 'providers/auth_provider.dart';
 
 Future<void> main() async {
-  var client = SomeApiService(HttpApiClient(
+  var client = SomeApiClient(HttpApiClient(
     domain: 'http://localhost:8081',
     path: '/api',
     providers: [AuthProvider()],

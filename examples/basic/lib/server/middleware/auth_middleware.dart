@@ -1,9 +1,8 @@
 import 'dart:async';
 
-import 'package:api_agent/server.dart';
+import 'package:api_agent/servers/shelf_router.dart';
 
 extension UserContext on ApiRequest {
-  String? get token => context['token'] as String?;
   String get user => context['user'] as String;
 }
 
@@ -12,10 +11,10 @@ class AuthMiddleware extends ApiMiddleware {
 
   @override
   FutureOr<dynamic> apply(
-      ApiRequest request, FutureOr<dynamic> Function(ApiRequest) next) {
-    String? token = request.token;
+      ShelfApiRequest request, FutureOr<dynamic> Function(ApiRequest) next) {
+    String? token = request.headers['Authorization'];
     if (token == 'abc') {
-      return next(request..set('user', 'abc'));
+      return next(request.change(context: {'user': 'abc'}));
     } else {
       throw ApiException(
         401,

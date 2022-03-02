@@ -57,6 +57,7 @@ class CaseStyle {
         return CaseStyle(head: head, tail: tail, separator: separator);
       }
     }
+    return null;
   }
 
   /// No [CaseStyle] will be applied
@@ -85,6 +86,8 @@ class CaseStyle {
 
   /// Transforms to 'FIELDNAME'
   static const upperCase = CaseStyle(tail: TextTransform.upperCase);
+
+  static List<String> splitWords(String text) => text.split(splitter);
 }
 
 extension CaseStyleTransform on CaseStyle? {

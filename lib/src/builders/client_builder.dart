@@ -1,5 +1,6 @@
 import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
+import 'package:dart_style/dart_style.dart';
 
 import 'imports_builder.dart';
 import 'utils.dart';
@@ -11,6 +12,8 @@ class ClientApiBuilder {
     var imports = ImportsBuilder(buildStep.inputId)
       ..add(buildStep.inputId.uri)
       ..add(Uri.parse('package:api_agent/client.dart'));
+    var exports = ImportsBuilder(buildStep.inputId, 'export')
+      ..add(buildStep.inputId.uri);
 
     Map<String, String> clients = {};
 
@@ -24,12 +27,9 @@ class ClientApiBuilder {
       }
     }
 
-    var output = StringBuffer();
-
-    output.writeln(imports.write());
-    output.writeAll(clients.values, '\n');
-
-    return output.toString();
+    return DartFormatter().format('${imports.write()}\n'
+        '${exports.write()}\n'
+        '${clients.values.join('\n')}');
   }
 
   void generateClient(ClassElement element, Map<String, String> clients,
@@ -41,10 +41,9 @@ class ClientApiBuilder {
 
     var output = StringBuffer();
 
-    output.writeln('class ${element.name}Service extends ApiService {');
-
-    output.write(
-        "  ${element.name}Service(ApiClient client) : super('${element.name}', client");
+    output.write('class ${element.name}Client extends RelayApiClient {\n'
+        '  ${element.name}Client(ApiClient client) '
+        ': super(\'${element.name}\', client');
 
     if (annotation != null && !annotation.getField('codec')!.isNull) {
       var codec = getMetaProperty(element, 'codec');
@@ -58,9 +57,9 @@ class ClientApiBuilder {
 
     for (var method in element.methods) {
       if (method.isAbstract) {
-        output.writeln(
-            '\n  ${method.getDisplayString(withNullability: true)} => ');
-        output.write('    request(\'${method.name}\', {');
+        output.write('\n'
+            '  ${method.getDisplayString(withNullability: true)} => \n'
+            '    request(\'${method.name}\', {');
 
         for (var param in method.parameters) {
           if (method.parameters.first != param) {
@@ -79,8 +78,9 @@ class ClientApiBuilder {
       if (accessor.isAbstract && accessor.isGetter) {
         var elem = accessor.type.returnType.element;
         if (elem == null || elem is! ClassElement) continue;
-        output.writeln(
-            '\n  ${elem.name}Service get ${accessor.name} => ${elem.name}Service(client);');
+        output.writeln('\n'
+            '  late final ${elem.name}Client ${accessor.name} = '
+            '${elem.name}Client(this);');
         generateClient(elem, clients, imports);
       }
     }
