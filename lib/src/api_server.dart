@@ -15,7 +15,7 @@ abstract class ApiEndpoint<T> {
   void build(ApiBuilder builder);
 }
 
-typedef EndpointHandler = FutureOr<dynamic> Function(ApiRequest request);
+typedef EndpointHandler = dynamic Function(ApiRequest request);
 
 abstract class ApiBuilder {
   void mount(String prefix, List<ApiEndpoint> handlers);

@@ -4,7 +4,7 @@ import 'core/api_codec.dart';
 import 'core/api_request.dart';
 
 abstract class ApiClient {
-  Future<R> request<R>(String method, Map<String, dynamic> params);
+  R request<R>(String endpoint, Map<String, dynamic> params);
   ApiClient mount(String prefix, [ApiCodec? codec]);
 }
 
@@ -24,8 +24,8 @@ abstract class RelayApiClient implements ApiClient {
       : parent = parent.mount(name, codec);
 
   @override
-  Future<T> request<T>(String method, Map<String, dynamic> params) {
-    return parent.request(method, params);
+  T request<T>(String endpoint, Map<String, dynamic> params) {
+    return parent.request(endpoint, params);
   }
 
   @override

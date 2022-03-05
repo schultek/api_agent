@@ -34,7 +34,15 @@ class HttpApiClient implements ApiClient {
   }
 
   @override
-  Future<T> request<T>(String endpoint, Map<String, dynamic> params) async {
+  T request<T>(String endpoint, Map<String, dynamic> params) {
+    var type = TypeAgent<T>();
+    if (type.isA<Future>()) {
+      return type.mapAs1<Future>(<T>() => _request<T>(endpoint, params));
+    }
+    throw 'Only endpoints that expect Futures are supported.';
+  }
+
+  Future<T> _request<T>(String endpoint, Map<String, dynamic> params) async {
     var domain = await this.domain;
 
     var request = HttpApiRequest(
@@ -81,11 +89,11 @@ class HttpApiClient implements ApiClient {
           ApiException.fromMap(json['error'] as Map<String, dynamic>));
     }
 
-    if (T.toString() == 'void') {
+    if (T == typeOf<void>()) {
       return null as T;
     }
 
     var result = json['result'];
-    return codec != null ? codec!.decode<T>(result) : result as T;
+    return codec != null ? codec!.decode(result) : result as T;
   }
 }
