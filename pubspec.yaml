@@ -1,19 +1,19 @@
 name: api_agent
 description: Generate technology-agnostic api bindings for both client and server.
-version: 0.2.0
+version: 0.3.0
 repository: https://github.com/schultek/api_agent
 issue_tracker: https://github.com/schultek/api_agent/issues
 
 dependencies:
-  analyzer: ^2.0.0
-  build: ^2.0.0
+  analyzer: ^3.3.1
+  build: ^2.2.1
   collection: ^1.15.0
-  dart_style: ^2.2.1
-  http: ^0.13.3
-  path: ^1.8.0
-  shelf: ^1.1.0
-  shelf_router: ^1.1.1
-  source_gen: ^1.0.5
+  dart_style: ^2.2.2
+  http: ^0.13.4
+  path: ^1.8.1
+  shelf: ^1.2.0
+  shelf_router: ^1.1.2
+  source_gen: ^1.2.1
   type_plus: ^0.5.1
 
 dev_dependencies:

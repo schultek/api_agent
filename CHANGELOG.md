@@ -1,3 +1,8 @@
+# 0.3.0
+
+- Improved generics handling
+- Added websocket example
+
 # 0.2.0
 
 - Rewrote endpoint generation
