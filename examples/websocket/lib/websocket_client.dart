@@ -10,9 +10,9 @@ class _SubWSClient extends _WSClient {
 
   _SubWSClient(this.parent, this.prefix) : super();
 
-  R _request<R>(
-      List<String> prefixes, String method, Map<String, dynamic> params) {
-    return parent._request([...prefixes, prefix], method, params);
+  R _request<R>(List<String> prefixes, String method,
+      Map<String, dynamic> params, RequestContext? context) {
+    return parent._request([...prefixes, prefix], method, params, context);
   }
 }
 
@@ -27,12 +27,13 @@ abstract class _WSClient implements ApiClient {
   }
 
   @override
-  R request<R>(String method, Map<String, dynamic> params) {
-    return _request([], method, params);
+  R request<R>(
+      String method, Map<String, dynamic> params, RequestContext? context) {
+    return _request([], method, params, context);
   }
 
-  R _request<R>(
-      List<String> prefixes, String method, Map<String, dynamic> params);
+  R _request<R>(List<String> prefixes, String method,
+      Map<String, dynamic> params, RequestContext? context);
 }
 
 class WebSocketClient extends _WSClient {
@@ -56,8 +57,8 @@ class WebSocketClient extends _WSClient {
     return WebSocketClient._(webSocket);
   }
 
-  R _request<R>(
-      List<String> prefixes, String method, Map<String, dynamic> params) {
+  R _request<R>(List<String> prefixes, String method,
+      Map<String, dynamic> params, RequestContext? context) {
     var type = TypeAgent<R>();
 
     var event = [...prefixes, method].join('/');
@@ -67,16 +68,17 @@ class WebSocketClient extends _WSClient {
     }
 
     if (type.isA<void>()) {
-      return type.mapAs<void>(() => _send(event, params));
+      return type.mapAs<void>(() => _send(event, params, context));
     }
 
     throw 'Websocket endpoints should have a return type of either Stream or void';
   }
 
-  void _send(String event, Map<String, dynamic> data) {
+  void _send(String event, Map<String, dynamic> data, RequestContext? context) {
     this.webSocket.add(jsonEncode({
           'event': event,
           'data': data,
+          'context': context?.finalize(),
         }));
   }
 

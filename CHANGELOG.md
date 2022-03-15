@@ -1,3 +1,7 @@
+# 0.4.0
+
+- Add support for generic endpoints
+
 # 0.3.1
 
 - Fix ApiCodec const constructor

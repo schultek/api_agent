@@ -3,6 +3,8 @@ import 'dart:async';
 import 'core/api_codec.dart';
 import 'core/api_request.dart';
 
+export 'core/use_type.dart';
+
 class ApiResponse {
   ApiResponse(this.value, {Map<String, dynamic>? context})
       : context = context ?? {};

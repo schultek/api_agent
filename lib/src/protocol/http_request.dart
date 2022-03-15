@@ -23,24 +23,24 @@ class HttpApiRequest extends ApiRequest {
     required Uri url,
     required String endpoint,
     required Map<String, dynamic> params,
-    Map<String, dynamic>? context,
+    RequestContext? context,
     Map<String, String>? headers,
     ApiCodec? codec,
   }) {
     String method = 'POST';
     var words = CaseStyle.splitWords(endpoint);
-
     if (words.first.toLowerCase() == 'get') {
       words.removeAt(0);
       method = 'GET';
     }
 
     return HttpApiRequest._(
-      url: url.replace(path: url.path + '/' + words.join('_')),
+      url: url.replace(
+          path: url.path + '/' + words.map((w) => w.toLowerCase()).join('_')),
       method: method,
       headers: headers ?? <String, String>{},
       parameters: params,
-      context: context,
+      context: context?.finalize(),
       codec: codec,
     );
   }

@@ -7,5 +7,5 @@ export 'definitions.api.dart';
 class GreetApiClient extends RelayApiClient {
   GreetApiClient(ApiClient client) : super('GreetApi', client);
 
-  Future<String> greet(String name) => request('greet', {'name': name});
+  Future<String> greet(String name) => request('greet', {'name': name}, null);
 }

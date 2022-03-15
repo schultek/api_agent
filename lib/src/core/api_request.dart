@@ -1,3 +1,5 @@
+import 'package:type_plus/type_plus.dart';
+
 import 'api_codec.dart';
 import 'api_exception.dart';
 
@@ -35,6 +37,23 @@ class ApiRequest {
   }
 
   T? getOpt<T>(String key) => parameters[key] != null ? get<T>(key) : null;
+
+  dynamic invoke(Function handler) {
+    var typeIds = context[r'$types'] as List? ?? [];
+    var types = typeIds.map((id) => TypePlus.fromId(id as String)).toList();
+    return handler.callWith(typeArguments: types);
+  }
+}
+
+class RequestContext {
+  List<Type>? types;
+  RequestContext({this.types});
+
+  Map<String, dynamic> finalize() {
+    return {
+      if (types != null) r'$types': types?.map((t) => t.id).toList(),
+    };
+  }
 }
 
 class StringOrEncoded {

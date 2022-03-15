@@ -7,13 +7,13 @@ export 'api.dart';
 class SomeApiClient extends RelayApiClient {
   SomeApiClient(ApiClient client) : super('SomeApi', client, MapperCodec());
 
-  Future<Data> getData(String id) => request('getData', {'id': id});
+  Future<Data> getData(String id) => request('getData', {'id': id}, null);
 
   Future<int> testApi(String data, [int? a, double b = 2]) =>
-      request('testApi', {'data': data, 'a': a, 'b': b});
+      request('testApi', {'data': data, 'a': a, 'b': b}, null);
 
   Future<bool> isOk({Data? d, required String b}) =>
-      request('isOk', {'d': d, 'b': b});
+      request('isOk', {'d': d, 'b': b}, null);
 
   late final InnerApiClient inner = InnerApiClient(this);
 }
@@ -21,5 +21,5 @@ class SomeApiClient extends RelayApiClient {
 class InnerApiClient extends RelayApiClient {
   InnerApiClient(ApiClient client) : super('InnerApi', client);
 
-  Future<String> doSomething(int i) => request('doSomething', {'i': i});
+  Future<String> doSomething(int i) => request('doSomething', {'i': i}, null);
 }

@@ -34,15 +34,18 @@ class HttpApiClient implements ApiClient {
   }
 
   @override
-  T request<T>(String endpoint, Map<String, dynamic> params) {
+  T request<T>(
+      String endpoint, Map<String, dynamic> params, RequestContext? context) {
     var type = TypeAgent<T>();
     if (type.isA<Future>()) {
-      return type.mapAs1<Future>(<T>() => _request<T>(endpoint, params));
+      return type
+          .mapAs1<Future>(<T>() => _request<T>(endpoint, params, context));
     }
     throw 'Only endpoints that expect Futures are supported.';
   }
 
-  Future<T> _request<T>(String endpoint, Map<String, dynamic> params) async {
+  Future<T> _request<T>(String endpoint, Map<String, dynamic> params,
+      RequestContext? context) async {
     var domain = await this.domain;
 
     var request = HttpApiRequest(
@@ -53,6 +56,7 @@ class HttpApiClient implements ApiClient {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       },
+      context: context,
       codec: codec,
     );
 
@@ -94,6 +98,6 @@ class HttpApiClient implements ApiClient {
     }
 
     var result = json['result'];
-    return codec != null ? codec!.decode(result) : result as T;
+    return codec != null ? codec!.decode<T>(result) : result as T;
   }
 }

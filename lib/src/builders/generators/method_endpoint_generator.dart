@@ -54,7 +54,13 @@ class MethodEndpointGenerator extends EndpointGenerator {
       output.write(method.returnType.getDisplayString(withNullability: true));
     }
 
-    output.write(' ${useName ? method.name : 'Function'}(');
+    output.write(' ${useName ? method.name : 'Function'}');
+
+    if (method.typeParameters.isNotEmpty) {
+      output.write('<${method.typeParameters.map((t) => t.name).join(', ')}>');
+    }
+
+    output.write('(');
 
     for (var param in method.parameters) {
       output.write('${param.type.getDisplayString(withNullability: true)} '
@@ -75,7 +81,14 @@ class MethodEndpointGenerator extends EndpointGenerator {
         '  $abstractMemberDefinition\n'
         '  @override\n'
         '  void build(ApiBuilder builder) {\n'
-        '    builder.handle(\'${method.name}\', (r) => ${method.name}(');
+        '    builder.handle(\'${method.name}\', (r) => ');
+
+    if (method.typeParameters.isNotEmpty) {
+      var args = method.typeParameters.map((t) => t.name).join(', ');
+      output.write('r.invoke(<$args>() => ${method.name}<$args>(');
+    } else {
+      output.write('${method.name}(');
+    }
 
     for (var param in method.parameters) {
       output.write('r.get');
@@ -89,7 +102,7 @@ class MethodEndpointGenerator extends EndpointGenerator {
       }
       output.write(', ');
     }
-    output.writeln('r));');
+    output.writeln('r))${method.typeParameters.isNotEmpty ? ')' : ''};');
     output.writeln('}\n}\n');
 
     output.write('class _$endpointClassName extends $endpointClassName {\n'
@@ -97,7 +110,13 @@ class MethodEndpointGenerator extends EndpointGenerator {
         '  final $handlerDefinition handler;\n\n'
         '  @override\n'
         '  $methodDefinition {\n'
-        '    return handler(');
+        '    return handler');
+
+    if (method.typeParameters.isNotEmpty) {
+      output.write('<${method.typeParameters.map((t) => t.name).join(', ')}>');
+    }
+
+    output.write('(');
 
     for (var param in method.parameters) {
       output.write('${param.name}, ');

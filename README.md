@@ -19,6 +19,7 @@ Technology-agnostic api bindings for your fullstack Dart application.
 - [Usage](#usage)
 - [Api Definitions](#api-definitions)
   - [Api Codec](#api-codec)
+  - [Generic Endpoints](#generic-endpoints)
 - [Api Clients](#api-clients)
   - [HttpApiClient](#httpapiclient)
   - [Api Providers](#api-providers)
@@ -293,6 +294,25 @@ class GreetCodec implements ApiCodec {
   }
 }
 ```
+
+### Generic Endpoints 
+
+Through the magic of `type_plus`, this package allows endpoints to be **generic functions**.
+The type parameter can be used in any way, for both the return type and parameter types.
+
+Simply specify an endpoint with up to 5 generic type parameters like this:
+
+```dart
+@ApiDefinition()
+abstract class UserApi {
+  Future<T> someGenericEndpoint<T, U>(U myParam);
+}
+```
+
+By default, it is only supported to call a generic endpoint with standard Dart types, like 
+`bool` `int`, `String`, `List`, `Map` and others. If you want to use custom types or classes as
+generic type arguments, you need to specify these types in the annotation using 
+`@ApiDefinition(useTypes: [MyCustomClass, SomeOtherType])`.
 
 ## Api Clients
 

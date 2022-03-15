@@ -4,6 +4,7 @@ import '../imports_builder.dart';
 import '../utils.dart';
 import 'endpoint_generator.dart';
 import 'method_endpoint_generator.dart';
+import 'use_types_generator.dart';
 
 class ApiEndpointGenerator extends EndpointGenerator {
   final ClassElement element;
@@ -39,8 +40,16 @@ class ApiEndpointGenerator extends EndpointGenerator {
         '  List<ApiEndpoint> get endpoints;\n'
         '\n'
         '  @override\n'
-        '  void build(ApiBuilder builder) {\n'
-        '    builder.mount(\'${element.name}\', endpoints');
+        '  void build(ApiBuilder builder) {');
+
+    var typesGenerator = UseTypesGenerator();
+    typesGenerator.addFromAnnotation(annotation);
+
+    if (typesGenerator.typesOutput.isNotEmpty) {
+      output.write(typesGenerator.generate());
+    }
+
+    output.writeln('    builder.mount(\'${element.name}\', endpoints');
 
     if (annotation != null && !annotation.getField('codec')!.isNull) {
       var codec = getMetaProperty(element, 'codec', imports);

@@ -2,6 +2,7 @@ import 'package:analyzer/dart/element/element.dart';
 import 'package:build/build.dart';
 import 'package:dart_style/dart_style.dart';
 
+import 'generators/use_types_generator.dart';
 import 'imports_builder.dart';
 import 'utils.dart';
 
@@ -53,26 +54,49 @@ class ClientApiBuilder {
       if (uri != null) imports.add(uri);
     }
 
-    output.writeln(');');
+    output.writeln(')');
+
+    var methodOutput = StringBuffer();
+
+    var typesGenerator = UseTypesGenerator();
+    typesGenerator.addFromAnnotation(annotation);
 
     for (var method in element.methods) {
       if (method.isAbstract) {
-        output.write('\n'
+        methodOutput.write('\n'
             '  ${method.getDisplayString(withNullability: true)} => \n'
             '    request(\'${method.name}\', {');
 
         for (var param in method.parameters) {
           if (method.parameters.first != param) {
-            output.write(', ');
+            methodOutput.write(', ');
           }
-          output.write("'${param.name}': ${param.name}");
+          methodOutput.write("'${param.name}': ${param.name}");
         }
 
-        output.writeln('});');
+        methodOutput.write('}');
+
+        if (method.typeParameters.isNotEmpty) {
+          methodOutput.write(', ctx(['
+              '${method.typeParameters.map((t) => t.name).join(', ')}])');
+        } else {
+          methodOutput.write(', null');
+        }
+
+        methodOutput.writeln(');');
 
         imports.addAll(method.getImports());
+        typesGenerator.add([method.returnType]);
       }
     }
+
+    if (typesGenerator.typesOutput.isNotEmpty) {
+      output.writeln(' {\n  ${typesGenerator.generate()}}');
+    } else {
+      output.writeln(';');
+    }
+
+    output.write(methodOutput);
 
     for (var accessor in element.accessors) {
       if (accessor.isAbstract && accessor.isGetter) {
