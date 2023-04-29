@@ -1,6 +1,6 @@
 name: api_agent
 description: Generate technology-agnostic api bindings for both client and server.
-version: 0.5.0
+version: 0.6.0
 repository: https://github.com/schultek/api_agent
 issue_tracker: https://github.com/schultek/api_agent/issues
 

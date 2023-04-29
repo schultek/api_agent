@@ -1,7 +1,11 @@
-# 0.5.0
+# 0.6.0
 
 - Require `analyzer ^5.2.0`
 - Fix bug with get requests
+
+# 0.5.0
+
+- Require `analyzer >=4.6.0 <6.0.0`
 
 # 0.4.0
 
