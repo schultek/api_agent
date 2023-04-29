@@ -30,7 +30,9 @@ class HttpApiRequest extends ApiRequest {
     String method = 'POST';
     var words = CaseStyle.splitWords(endpoint);
     if (words.first.toLowerCase() == 'get') {
-      words.removeAt(0);
+      if (words.length > 1) {
+        words.removeAt(0);
+      }
       method = 'GET';
     }
 

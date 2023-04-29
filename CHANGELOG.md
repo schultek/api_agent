@@ -1,3 +1,8 @@
+# 0.5.0
+
+- Require `analyzer ^5.2.0`
+- Fix bug with get requests
+
 # 0.4.0
 
 - Add support for generic endpoints
