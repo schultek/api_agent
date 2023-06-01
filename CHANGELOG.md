@@ -1,3 +1,7 @@
+# 0.6.1
+
+- Add `onError` to  `ShelfApiRouter`
+
 # 0.6.0
 
 - Require `analyzer ^5.2.0`
