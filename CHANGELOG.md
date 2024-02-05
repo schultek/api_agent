@@ -1,3 +1,8 @@
+# 0.6.2
+
+- Updated dependencies
+- Require `sdk: '>=3.0.0 <4.0.0'`
+
 # 0.6.1
 
 - Add `onError` to  `ShelfApiRouter`
